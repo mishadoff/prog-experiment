@@ -158,3 +158,14 @@
              [0 0 0 0 0 0 0 0]
              [0 0 0 0 0 0 0 0]
              [0 0 0 0 0 0 0 0]])
+
+
+
+;; Shorter version posted by Mike 112 characters
+;; Input formmat for grid set of live cells #{[1 0] [1 3]...}
+
+(def mike1 #(set(for[[p n](frequencies(mapcat(fn[[x y]](for[a[-1 0 1]b[-1 0 1]][(+ a x)(+ b y)]))%)):when({3% 4(% p)}n)]p)))
+
+;; Can be improved to 106
+
+(def mike2 #(set(for[[p n](frequencies(mapcat(fn[v](for[a[-1 0 1]b[-1 0 1]](map + v[a b])))%)):when({3% 4(% p)}n)]p)))
