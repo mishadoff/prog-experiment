@@ -4,7 +4,7 @@
   (if (zero? (rand-int 2)) :H :T))
 
 (defn exp [pattern]
-  (loop [i 0 prev3 [0 0 0]]
+  (loop [i 0 prev3 (vec (repeat (count pattern) 0))]
     (if (= prev3 pattern) i
         (recur (inc i) (conj (vec (rest prev3)) (flip))))))
 
