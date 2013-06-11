@@ -16,7 +16,9 @@
   nil)
 
 (defun print-frame (frame)
-  (format t "~S~%" (file-source (source (code-location frame))))) ;; File Source
+  (format t "Function Name: ~A~%" (function-name frame)) ;; Function Name
+  (format t "Source File: ~A~%" (file-source (source (code-location frame))))
+  (format t "----------------~%"))
 
 
 (defun code-location (frame)
@@ -27,6 +29,9 @@
 
 (defun file-source (source)
   (sb-c::debug-source-namestring source))
+
+(defun function-name (frame) 
+  (sb-di:debug-fun-name (sb-di:frame-debug-fun frame)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper common functions ;;
@@ -50,15 +55,18 @@
 
 
 (defun add (x y)
-  (print-frames)
+  (print-frames 3)
+  (real-add x y))
+
+(defun real-add (x y)
   (+ x y))
 
 
+;; 1st part
 
-
-
-;; TODO FILTER other values
-;; TODO FUNCTION NAME
+;; [[DONE]] FUNCTION NAME
 ;; TODO ARGUMENTS
 ;; [[DONE]] SOURCE FILE 
-;; TODO LINE (open file find (defun add))
+;; TODO LINE NUMBER
+;; TODO FILTER BAD VALUES
+;; TODO DEBUGGING MACRO
