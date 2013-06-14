@@ -17,21 +17,23 @@
 
 (defun print-frame (frame)
   (format t "Function Name: ~A~%" (function-name frame)) ;; Function Name
+  (format t "ARGS[]:  ~{~A ~}~%"  (frame-args frame))
   (format t "Source File: ~A~%" (file-source (source (code-location frame))))
   (format t "----------------~%"))
 
+;; Frame extractors
 
-(defun code-location (frame)
-  (sb-di::frame-code-location frame))
-
-(defun source (code-location)
-  (sb-di:code-location-debug-source code-location))
-
-(defun file-source (source)
-  (sb-c::debug-source-namestring source))
-
-(defun function-name (frame) 
+(defun function-name (frame)
   (sb-di:debug-fun-name (sb-di:frame-debug-fun frame)))
+
+(defun frame-args (frame)
+  (sb-debug::frame-args-as-list frame))
+
+(defun source-file-name (frame)
+  (sb-c::debug-source-namestring
+   (sb-di:code-location-debug-source 
+    (sb-di::frame-code-location frame))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper common functions ;;
@@ -61,11 +63,10 @@
 (defun real-add (x y)
   (+ x y))
 
-
 ;; 1st part
 
 ;; [[DONE]] FUNCTION NAME
-;; TODO ARGUMENTS
+;; [[DONE]] ARGUMENTS
 ;; [[DONE]] SOURCE FILE 
 ;; TODO LINE NUMBER
 ;; TODO FILTER BAD VALUES
