@@ -16,12 +16,18 @@
   nil)
 
 (defun print-frame (frame)
-  (format t "Function Name: ~A~%" (function-name frame)) ;; Function Name
-  (format t "ARGS[]:  ~{~A ~}~%"  (frame-args frame))
-  (format t "Source File: ~A~%" (file-source (source (code-location frame))))
-  (format t "----------------~%"))
+  (let* ((fun-name (function-name frame))
+	 (args-list (frame-args frame))
+	 (file-name (source-file-name frame))
+	 (line-number (source-fun-line file-name frame)))
+  (format t "Function Name: ~A~%" fun-name)
+  (format t "ARGS[~D]:  ~{~A ~}~%" (length args-list) args-list)
+  (format t "Source File: ~A:~D~%" file-name line-number)
+  (format t "----------------~%")))
 
-;; Frame extractors
+;;;;;;;;;;;;;;;;;;;;;;
+;; Frame extractors ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 (defun function-name (frame)
   (sb-di:debug-fun-name (sb-di:frame-debug-fun frame)))
@@ -31,9 +37,20 @@
 
 (defun source-file-name (frame)
   (sb-c::debug-source-namestring
-   (sb-di:code-location-debug-source 
-    (sb-di::frame-code-location frame))))
+   (frame-source-location frame)))
 
+(defun frame-source-location (frame)
+  (sb-di:code-location-debug-source 
+    (sb-di::frame-code-location frame)))
+
+(defun source-fun-line (file frame)
+  (let* ((source-offset
+	  (sb-di::code-location-toplevel-form-offset 
+	   (frame-source-location frame))))
+    (with-open-file (in file :if-does-not-exist nil)
+      (if in
+	  (1+ (loop repeat source-offset
+		 count (eql (read-char in) #\Newline))) 0))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper common functions ;;
@@ -52,12 +69,12 @@
 ;; (iterate #'1+ 0 5) => (0 1 2 3 4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Test Fuctions ;;;;;;;;;;;;;;;;
+;; Test Functions ;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 (defun add (x y)
-  (print-frames 3)
+  (print-frames 2)
   (real-add x y))
 
 (defun real-add (x y)
