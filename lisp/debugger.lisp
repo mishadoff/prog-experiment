@@ -1,3 +1,4 @@
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SSD - Simple SBCL Debugger ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -19,18 +20,22 @@
   (let* ((fun-name (function-name frame))
 	 (args-list (frame-args frame))
 	 (file-name (source-file-name frame))
-	 (line-number (source-fun-line file-name frame)))
-  (format t "Function Name: ~A~%" fun-name)
-  (format t "ARGS[~D]:  ~{~A ~}~%" (length args-list) args-list)
-  (format t "Source File: ~A:~D~%" file-name line-number)
-  (format t "----------------~%")))
+	 (line-number (source-function-matches 
+	  	       (concatenate 'string "(defun " (string fun-name))
+	  	       (source-fun-lines file-name))))
+    (format t "Function Name: ~A~%" fun-name)
+    (format t "ARGS[~D]: ~{~A ~}~%" (length args-list) args-list)
+    (format t "Source File: ~A:~D~%" file-name line-number)
+    (format t "----------------~%")))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; Frame extractors ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defun function-name (frame)
-  (sb-di:debug-fun-name (sb-di:frame-debug-fun frame)))
+  (let ((fname (sb-di:debug-fun-name (sb-di:frame-debug-fun frame))))
+    (if (atom fname) fname
+	(second fname))))
 
 (defun frame-args (frame)
   (sb-debug::frame-args-as-list frame))
@@ -43,14 +48,17 @@
   (sb-di:code-location-debug-source 
     (sb-di::frame-code-location frame)))
 
-(defun source-fun-line (file frame)
-  (let* ((source-offset
-	  (sb-di::code-location-toplevel-form-offset 
-	   (frame-source-location frame))))
-    (with-open-file (in file :if-does-not-exist nil)
-      (if in
-	  (1+ (loop repeat source-offset
-		 count (eql (read-char in) #\Newline))) 0))))
+(defun source-fun-lines (file)
+  (with-open-file (in file :if-does-not-exist nil)
+    (if in
+	(loop for line = (read-line in nil 'eof)
+	   until (eq line 'eof)
+	   collect line) nil)))
+
+(defun source-function-matches (fun-name lines &optional (c 1))
+  (if lines
+      (if (search (string-upcase fun-name) (string-upcase (first lines))) c
+	  (source-function-matches fun-name (rest lines) (1+ c))) 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helper common functions ;;
@@ -69,7 +77,7 @@
 ;; (iterate #'1+ 0 5) => (0 1 2 3 4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Test Functions ;;;;;;;;;;;;;;;;
+;; Test Functions ;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -85,6 +93,6 @@
 ;; [[DONE]] FUNCTION NAME
 ;; [[DONE]] ARGUMENTS
 ;; [[DONE]] SOURCE FILE 
-;; TODO LINE NUMBER
+;; [[DONE]] LINE NUMBER
 ;; TODO FILTER BAD VALUES
 ;; TODO DEBUGGING MACRO
