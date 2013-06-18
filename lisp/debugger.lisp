@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SSD - Simple SBCL Debugger ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11,9 +10,9 @@
 (defun next-frame (frame)
   (sb-di::frame-down frame))
 
-(defun print-frames (&optional (n 10))
+(defun print-frames (&optional (n 2))
   (mapcar #'print-frame
-	  (iterate #'next-frame (top-frame) n))
+	  (rest (iterate #'next-frame (top-frame) n)))
   nil)
 
 (defun print-frame (frame)
@@ -21,16 +20,14 @@
 	 (args-list (frame-args frame))
 	 (file-name (source-file-name frame))
 	 (line-number (source-function-matches 
-	  	       (concatenate 'string "(defun " (string fun-name))
+		       (concatenate 'string "(defun " (string fun-name))
 	  	       (source-fun-lines file-name))))
     (format t "Function Name: ~A~%" fun-name)
     (format t "ARGS[~D]: ~{~A ~}~%" (length args-list) args-list)
     (format t "Source File: ~A:~D~%" file-name line-number)
     (format t "----------------~%")))
 
-;;;;;;;;;;;;;;;;;;;;;;
-;; Frame extractors ;;
-;;;;;;;;;;;;;;;;;;;;;;
+;; Frame extractors
 
 (defun function-name (frame)
   (let ((fname (sb-di:debug-fun-name (sb-di:frame-debug-fun frame))))
@@ -60,9 +57,7 @@
       (if (search (string-upcase fun-name) (string-upcase (first lines))) c
 	  (source-function-matches fun-name (rest lines) (1+ c))) 0))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Helper common functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helper common functions
 
 ;; TODO find lisp equivalents?
 
@@ -76,17 +71,28 @@
 
 ;; (iterate #'1+ 0 5) => (0 1 2 3 4)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Test Functions ;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;; Test Functions
 
 (defun add (x y)
-  (print-frames 2)
+  (print-frames)
   (real-add x y))
 
 (defun real-add (x y)
-  (+ x y))
+  (print-frames)
+  (+ (I x) (I y)))
+
+(defun I (x) 
+  (print-frames)
+  x)
+
+(defun random-sum ()
+  (print-frames)
+  (add (random 5) (random 5)))
+
+(defun random-sum-with-failure ()
+  (print-frames)
+  (let ((r (add (random 5) (random 5))))
+    (if (< r 6) r (error "RESULT IS GREATER THAN 6"))))
 
 ;; 1st part
 
@@ -94,5 +100,30 @@
 ;; [[DONE]] ARGUMENTS
 ;; [[DONE]] SOURCE FILE 
 ;; [[DONE]] LINE NUMBER
-;; TODO FILTER BAD VALUES
 ;; TODO DEBUGGING MACRO
+
+
+;; EXAMPLE
+
+;; CL-USER> (random-sum)
+;; Function Name: RANDOM-SUM
+;; ARGS[0]: 
+;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:95
+;; ----------------
+;; Function Name: ADD
+;; ARGS[2]: 1 2 
+;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:83
+;; ----------------
+;; Function Name: REAL-ADD
+;; ARGS[2]: 1 2 
+;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:87
+;; ----------------
+;; Function Name: I
+;; ARGS[1]: 1 
+;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:69
+;; ----------------
+;; Function Name: I
+;; ARGS[1]: 2 
+;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:69
+;; ----------------
+;; 3
