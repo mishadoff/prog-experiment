@@ -140,12 +140,15 @@
 
 (greet-memo "JUG")
 (greet-memo "JUG")
+
 ;; Lazy Sequences
 
-;;take
-;;drop
-;;take-while
-;;drop-while
+(range)
+(take 10 (range))
+(take 10 (drop 10 (range)))
+(take-while #(< % 100) (filter even? (map square (range))))
+
+;; Thread macro
 
 ;; IO
 
