@@ -94,15 +94,6 @@
   (let ((r (add (random 5) (random 5))))
     (if (< r 6) r (error "RESULT IS GREATER THAN 6"))))
 
-;; 1st part
-
-;; [[DONE]] FUNCTION NAME
-;; [[DONE]] ARGUMENTS
-;; [[DONE]] SOURCE FILE 
-;; [[DONE]] LINE NUMBER
-;; TODO DEBUGGING MACRO
-
-
 ;; EXAMPLE
 
 ;; CL-USER> (random-sum)
@@ -127,3 +118,58 @@
 ;; Source File: /home/mishadoff/coding/prog-experiment/lisp/debugger.lisp:69
 ;; ----------------
 ;; 3
+
+
+
+;; 2nd part
+
+(defun error-handler (e)
+  (print-frames 5)
+  (if (y-or-n-p "Do you want rethrow error?")
+      (throw 'with-error (error e))
+      (throw 'with-error nil)))
+
+(defmacro with-error (&rest forms)
+  `(catch 'with-error
+     (handler-bind ((error #'error-handler))
+       ,@forms)))
+
+;; Test functions
+
+(defun fail-add (a b)
+  (let ((fail (random 2)))
+    (if (zerop fail) (+ a b)
+	(error "Add failure"))))
+
+
+
+;; EXAMPLE
+
+;; 1. SUCCESS CASE
+
+;; CL-USER> (with-error (fail-add 1 1))
+;; 2
+
+;; 2. ERROR CASE, SWALLOW ERROR
+
+;; CL-USER> (with-error (fail-add 1 1))
+;; Function Name: ERROR-HANDLER
+;; ARGS[1]: Add failure 
+;; Source File: d:/coding/prog-experiment/lisp/debugger.lisp:133
+;; ----------------
+;; Function Name: SIGNAL
+;; ARGS[1]: Add failure 
+;; Source File: SYS:SRC;CODE;COLD-ERROR.LISP:0
+;; ----------------
+;; Function Name: ERROR
+;; ARGS[1]: Add failure 
+;; Source File: SYS:SRC;CODE;COLD-ERROR.LISP:0
+;; ----------------
+;; Function Name: FAIL-ADD
+;; ARGS[2]: 1 1 
+;; Source File: d:/coding/prog-experiment/lisp/debugger.lisp:146
+;; ----------------
+;; Do you want rethrow error? (y or n) n
+
+;; n => NIL
+;; y => (error e)
