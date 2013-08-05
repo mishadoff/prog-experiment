@@ -149,27 +149,87 @@
 (take-while #(< % 100) (filter even? (map square (range))))
 
 ;; Thread macro
+;; Thread-Last
+(->> (range)
+     (map square)
+     (filter even?)
+     (take-while #(< % 100)))
 
-;; IO
+;; Thread First
+(-> 10
+    (+ 2)
+    (- 100)
+    (/ 10)
+    square
+    str)
+
+;; Thread Hack
+(->> (range)
+     (take 10)
+     vec
+     (#(conj % 1)))
 
 ;; Metainformation
+(with-meta [1 2 3 4 5] {:message "This is an array"})
+(def a (with-meta [1 2 3 4 5] {:message "This is an array"}))
+(meta a)
 
-;; Namespaces
+;; IO
+(slurp "/home/mishadoff/jug.txt")
+(println (slurp "/home/mishadoff/jug.txt"))
+(spit "/home/mishadoff/jug.txt"
+      "Thanks for Attending"
+      :append true)
+
+(require 'clojure.java.io)
+(with-open [r (reader "/home/mishadoff/jug.txt")]
+  (doseq [line (line-seq r)]
+    (println line)))
+
+;; Regexps
+(re-seq #"\w+" (slurp "/home/mishadoff/jug.txt"))
+
+;; Record
+(defrecord ProgLang [name year])
+(def clj (new ProgLang "Clojure" 2008))
+(keys clj)
+(vals clj)
+
+;; Protocol
+(defprotocol Age
+  (how-old? [this]))
+
+(defprotocol Name
+  (getName [this]))
+
+(defrecord ProgLang [name year]
+  Age Name
+  (how-old? [this] (- 2013 year))
+  (getName ^String [this] name))
+
+(how-old? (new ProgLang "Clojure" 2008))
+(getName (new ProgLang "Clojure" 2008))
+
+(extend-protocol 
+    Age java.lang.String
+    (how-old? [this] "String are very old"))
+(how-old? "Clojure")
+
+;; Type Hints
 
 ;; Multimethods
 
-;; Record
+;; Exceptions
+(try
+  (println "Hello")
+  (println "World")
+  (+ 1 2 3 4)
+  (catch Exception e "ERROR"))
 
-;; Protocol
+(throw (new Exception))
 
 ;; Macro
 
 ;; Java Interoperability (both)
-
-;; Type Hints
-
-;; Transients
-
-;; Coersion
 
 ;; Bonus
