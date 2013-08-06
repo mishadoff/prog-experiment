@@ -217,7 +217,37 @@
 
 ;; Type Hints
 
+(defrecord ProgLang [name year]
+  Age Name
+  (how-old? [this] (- 2013 year))
+  (getName [this] (.toUpperCase name)))
+
+;; time
+
+(defrecord ProgLang [^String name year]
+  Age Name
+  (how-old? [this] (- 2013 year))
+  (getName [this] (.toUpperCase name)))
+
 ;; Multimethods
+
+;; Runtime Polymorhism
+
+(defn rectangle [w h] 
+  {:type :rectangle
+   :w w
+   :h h})
+
+(defn circle [r]
+  {:type :circle
+   :r r})
+
+(defmulti area :type)
+
+(defmethod area :rectangle [r]
+  (* (:w r) (:h r)))
+(defmethod area :circle [r]
+  (* 3.14 (:r r) (:r r))) 
 
 ;; Exceptions
 (try
