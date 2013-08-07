@@ -35,7 +35,7 @@
 ;; Collections
 
 ;; List
-(1 2 3)
+;(1 2 3)
 '(1 2 3)
 (def a (list 1 2 3))
 (first a)
@@ -259,7 +259,75 @@
 (throw (new Exception))
 
 ;; Macro
+;; is debug enabled
 
-;; Java Interoperability (both)
+(def *debug* true)
+
+(defmacro debug [& body]
+  (when *debug*
+    `(do ~@body)))
+
+(debug "Current value")
+(macroexpand '(debug "Hello"))
+
+;; Concurrency (STM)
+(def account1 (ref 100))
+(def account2 (ref 100))
+
+(deref account1)
+@account1
+
+(dosync
+ (alter account1 - 20)
+ (alter account2 + 20))
+
+(defn transfer [acc1 acc2 amount] 
+  (dosync
+   (when (<= amount @acc1)
+     (alter acc1 - amount)
+     (alter acc2 + amount))))
+
+(defn bank []
+  (vec
+   (for [i (range 10)]
+     (ref (rand-int 100)))))
+
+(def accounts (bank))
+;; sum in all accounts
+(reduce + (map deref accounts))
+
+(time (dotimes [_ 10000]
+        (.start (Thread.
+                 #(transfer
+                   (rand-nth accounts)
+                   (rand-nth accounts)
+                   (rand-int 20))))))
+
+;; Java Interoperability
+
+;; create object
+(new ArrayList)
+(import 'java.util.ArrayList)
+(def al (new ArrayList))
+
+;; methods
+(.add al 1)
+(.size al)
+
+;; static methods
+(Math/cos 0)
+(Math/sqrt Math/PI)
+
+(import javax.swing.JOptionPane)
+
+(JOptionPane/showMessageDialog 
+ nil "Hello, JUG" "dialog" 
+ JOptionPane/ERROR_MESSAGE)
 
 ;; Bonus
+
+;; Game of Life
+
+
+
+
