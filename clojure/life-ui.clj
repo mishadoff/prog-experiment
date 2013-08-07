@@ -3,7 +3,6 @@
 (def step (fn[g r](reduce(fn[i j](update-in i j(fn[v](get[v 1](-(apply +(map #(get-in g% 0)(for[a[-1 0 1]b[-1 0 1]](map + j[a b]))))v 2)0))))g r)))
 
 ;; 137 characters
-
 ;; Logic
 
 (defn step-sugar [grid range]
@@ -26,9 +25,8 @@
 
 ;; Process
 
-(defn evolution [g]
-  (let [p (count g) q (count (get g 0)) ;; dimensions of grid
-        range (for [i (range p) j (range q)][i j])] ;; update whole grid
+(defn evolution [g m n]
+  (let [range (for [i (range m) j (range n)][i j])] ;; update whole grid
     (iterate #(step-sugar % range) g)))
 
 (defn print-grid [g]
@@ -54,36 +52,41 @@
 ;; Main
 
 (defn run [grid]
-  (doseq [g (evolution grid)]
-    (print-grid g)
-    (Thread/sleep 1000)))
+  (let [m (count grid) n (count (first grid))]
+    (doseq [g (evolution grid m n)]
+      (print-grid g)
+      (Thread/sleep 1000))))
 
 ;; Swing
 
 (import [java.awt Color Graphics Dimension]
         [javax.swing JPanel JFrame])
 
+(def scale 20)
+(def dimx 600)
+(def dimy 600)
+(def delay 250)
+
 (defn draw-cell [^Graphics g x y c]
-  (print x " " y " " c)
   (doto g
     (.setColor c)
-    (.fillRect (* x 20) (* y 20) 20 20)))
+    (.fillRect (* x scale) (* y scale) scale scale)))
 
-(defn refresh-grid [graphics grid]
+(defn refresh-grid [graphics grid m n]
   (let [color (fn [n] (if (zero? n) Color/WHITE Color/BLACK))]
-    (doseq [i (range (count grid))
-            j (range (count (get grid 0)))]
+    (doseq [i (range m) j (range n)]
       (draw-cell graphics i j (color (get-in grid [i j]))))))
 
 (defn run-swing [grid]
   (let [grid-ref (ref grid)
+        m (count grid) n (count (first grid))
         panel (doto (proxy [JPanel] []
                       (paintComponent [g]
                         (proxy-super paintComponent g)
-                        (refresh-grid g @grid-ref)))
-                (.setPreferredSize (Dimension. 500 500)))
+                        (refresh-grid g @grid-ref m n)))
+                (.setPreferredSize (Dimension. dimx dimy)))
         frame (doto (JFrame.) (.add panel) .pack .show)]
-    (doseq [gr (evolution grid)]
+    (doseq [gr (evolution grid m n)]
       (dosync (ref-set grid-ref gr))
       (.repaint panel)
-      (Thread/sleep 500))))
+      (Thread/sleep delay))))
