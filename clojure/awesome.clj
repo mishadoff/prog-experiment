@@ -35,6 +35,7 @@
 ;; 2. Compare results of two applied functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Test commit
 ;; TODO real use case
 
 ;; TODO functions specific to use case
