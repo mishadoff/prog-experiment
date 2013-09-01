@@ -6,6 +6,7 @@
 ;; 1. Sort list of maps by multi values
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO swap first name with lastname
 ;; Use Case:
 ;; Sort list of people by firstname, and if
 ;; first names are equal, sort them by lastname
