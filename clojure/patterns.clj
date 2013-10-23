@@ -1,28 +1,45 @@
 (ns patterns)
 
+;; Scratch for article
+
+;; Old School Design Patterns in Clojure
+;; Our programing language is fucked up. So we need design pattern
+
 ;;;;;;;;;;;;;;;;
 ;; 1. Command ;;
 ;;;;;;;;;;;;;;;;
 
 ;; "Encapsulates information needed to call a method at a later time" WAT?
 
-;; Example: GWT Command class
+;; Examples:
+;; java.lang.Runnable
+;; javax.swing.Action
+;; com.google.gwt.user.client.Command
+
+;; Maybe functional interface?
+;; Maybe functional int...
+;; Maybe function...
 
 (defn create-command [f & args]
-  #(apply f args))
+  #(apply f args)) 
+
+;; Just Wrap In Anonymous noarg function if you need delayed computation
+;; By the way functional programmers call it thunk (delayed computation)
 
 (defn execute-command [command]
   (command))
 
-;; Functional programmers call it THUNK (delayed computation)
-
-;; What about history you say?
+;; Java Attacks: What about history?
 
 (def history (atom []))
 
 (defn execute-command-history [command]
   (swap! history conj command)
   (command))
+
+;; Clojure Attacks: Please, compose commands.
+
+;; http://stackoverflow.com/questions/9847245/pattern-for-implementing-undo-redo-in-clojure
 
 ;; Conclusion: Command is just a function
 
@@ -110,7 +127,7 @@
   (f)
   (println "step 3"))
 
-;; How it differs from strategy?
+;; Does it differ from strategy? Answer: NO.
 
 ;;;;;;;;;;;;;;;;;;
 ;; 10. Visitor ;;;
