@@ -1,9 +1,19 @@
 (ns patterns)
 
-;; Scratch for article
+;; Scratch for article/prez
 
-;; Old School Design Patterns in Clojure
-;; Our programing language is fucked up. So we need design pattern
+;; 1. Old School Design Patterns (GoF) in Clojure
+
+;; 2. Why Patterns?
+;; Our programing language is fucked up. 
+;; That's why we need design patterns
+
+;; 3. HARD DISCLAIMER
+;; - Most actions are simplified because of DYNAMIC PROGRAMMING
+;; - You may be not agree, it's ok.
+
+;; 4. Three Tankists and Dog
+;; Structural, Creational, Behavioural and Java
 
 ;;;;;;;;;;;;;;;;
 ;; 1. Command ;;
@@ -11,17 +21,16 @@
 
 ;; "Encapsulates information needed to call a method at a later time" WAT?
 
-;; Examples:
-;; java.lang.Runnable
-;; javax.swing.Action
-;; com.google.gwt.user.client.Command
+;; Example: java.lang.Runnable
 
 ;; Maybe functional interface?
 ;; Maybe functional int...
 ;; Maybe function...
 
-(defn create-command [f & args]
-  #(apply f args)) 
+;; Real World Example: TODO 
+
+;; Java -> Interface Command.action()
+;; Clojure -> function
 
 ;; Just Wrap In Anonymous noarg function if you need delayed computation
 ;; By the way functional programmers call it thunk (delayed computation)
@@ -29,17 +38,23 @@
 (defn execute-command [command]
   (command))
 
-;; Java Attacks: What about history?
+;; JAVA:   What about history?
+
+;; History it's a state.
 
 (def history (atom []))
 
-(defn execute-command-history [command]
-  (swap! history conj command)
+(defn execute-command-with-history [command]
+  (swap! history conj command) ;; modifying state
   (command))
 
-;; Clojure Attacks: Please, compose commands.
+;; CLOJURE:   What about parameters?
 
-;; http://stackoverflow.com/questions/9847245/pattern-for-implementing-undo-redo-in-clojure
+;; can pass any number of parameters
+(defn execute-command-with-args [command & args]
+  (apply command args))
+
+;; or caller can use no-arg anonymous function (execute #(switch :on))
 
 ;; Conclusion: Command is just a function
 
@@ -49,20 +64,44 @@
 
 ;; "Algorithm's behaviour can be selected at runtime" WAT?
 
-;; Example Collections.sort(coll, comparator) in Java
+;; Example: Collections.sort(coll, comparator) in Java
+;                     Algorithm     behaviour
 
-(defn action [coll f]
-  (reduce f coll))
+(defn execute-strategy [data strategy]
+  (apply strategy data))
 
-;; Conclusion: Strategy is just function that accepts function
+;; Real-World Example: Sort by comparator
+
+(defn sort-by-comparator [coll comp]
+  (sort comp coll))
+
+(sort-by-comparator [1 2 3 4 5] (comparator >))
+
+;; TODO Battle
+
+;; Conclusion: Strategy is just function accepts function
 
 ;;;;;;;;;;;;;;;;;
 ;; 3. Iterator ;;
 ;;;;;;;;;;;;;;;;;
 
-(seq [1 2 3])
+;; "Iterator is an object that enables a programmer to traverse a container" WAT?
 
-;; Conclusion: Iterator is just a good abstraction. Clojure has it
+;; Object -> Function
+
+;; Iterator defines a set of functions...
+;; next(), hasNext()
+
+;; Iterator iterator;
+;; while (iterator.hasNext()) {
+;;   iterator.next();
+;; } 
+
+(seq [1 2 3]) ;; Iterator
+(first [1 2 3]) ;; => 1 
+(next [1 2 3]) ;; => [2 3]
+
+;; Conclusion: Iterator is abstraction over two functions.
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; 4. Interpreter ;;
@@ -94,8 +133,8 @@
 (defn save-state [state]
   (swap! states conj state))
 
-;; restore
-
+;; TODO restore
+;; TODO usage
 
 ;;;;;;;;;;;;;;;;;
 ;; 7. Observer ;;
@@ -116,6 +155,8 @@
 
 (defmethod print-string :lower [s]
   (println (.toLowerCase (:message s))))
+
+;; Another implementation using passing style
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 9. Template Method ;;
@@ -152,3 +193,20 @@
 ;;;;;;;;;;;;;;;;;;
 
 ;; Clone needed for state. In clojure we don't use state.
+
+;;;;;;;;;;;;;;;;;;
+;;; 2 Singleton ;;
+;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;
+;; 3. Composite ;;
+;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+;; 4. Builder ;;;;
+;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;
+;; 5. Factory ;;;;
+;;;;;;;;;;;;;;;;;;
