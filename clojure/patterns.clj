@@ -89,25 +89,47 @@
 
 ;; Object -> Function
 
-;; Iterator defines a set of functions...
-;; next(), hasNext()
+;; Example: java.collections.Iterator
+
+;; Iterator interface defines a set of functions...
+;; hasNext(), next()
 
 ;; Iterator iterator;
 ;; while (iterator.hasNext()) {
 ;;   iterator.next();
-;; } 
+;; }
 
-(seq [1 2 3]) ;; Iterator
+;; Guess what? It's a singly-linked list interface. 
+
+;; Iterator = Sequence
+(seq [1 2 3]) ;; Vector
+(seq (list 1 2 3)) ;; List
+(seq #{1 2 3}) ;; Set
+(seq (int-array 5 1)) ;; Array
+
+;; It returns a LIST. List naturally have operations hasNext() and next()
+
 (first [1 2 3]) ;; => 1 
-(next [1 2 3]) ;; => [2 3]
+(rest [1 2 3]) ;; => (2 3)
 
-;; Conclusion: Iterator is abstraction over two functions.
+;; Conclusion: Iterator is abstraction and two functions.
+;; Overabstraction of single linked list?
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; 4. Interpreter ;;
 ;;;;;;;;;;;;;;;;;;;;
 
+;; "Interpreter pattern is a design pattern that specifies how to evaluate sentences in a language"
+
+;; Example: java.util.Pattern, java.text.Format
+
+;; Set of matches. 
+;; Basically it's close to pattern matching, 
+;; but clojure have a lack o pm. Java either.
+
 ;; Guys, it's LISP. Do you really want to fight?
+;; Real-world Example: Reverse Polish Notation
+
 
 ;; TODO show them magic
 ;; Macro support
@@ -118,23 +140,43 @@
 ;; 5. Mediator ;;
 ;;;;;;;;;;;;;;;;;
 
-;; To communicate between objects. We don't really have objects
+;; "Define an object that encapsulates how a set of objects interact"
 
-;; TODO
+;; Example: java.lang.reflect.Method#invoke()
+
+(defn mediator-action [obj1 obj2]
+  (do obj1)
+  (do obj2))
 
 ;;;;;;;;;;;;;;;;
 ;; 6. Memento ;;
 ;;;;;;;;;;;;;;;;
 
-;; State??? You're doing it wrong. Instead we just replace
+;; "Provides the ability to restore an object to its previous state"
+
+;; Undo functionality?
+
+;; Example: java.io.Serializable
+
+;; Again based on state. In clojure we don't have stated, instead.
 
 (def states (atom []))
 
 (defn save-state [state]
   (swap! states conj state))
 
-;; TODO restore
-;; TODO usage
+(defn restore-to-last []
+  (let [restored (peek @states)] 
+    (swap! states pop)
+    restored))
+
+;; Usage
+
+(save-state :open)
+(save-state :run)
+(save-state :active)
+
+(restore-to-last)
 
 ;;;;;;;;;;;;;;;;;
 ;; 7. Observer ;;
