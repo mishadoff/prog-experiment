@@ -67,8 +67,8 @@
 ;; Example: Collections.sort(coll, comparator) in Java
 ;                     Algorithm     behaviour
 
-(defn execute-strategy [data strategy]
-  (apply strategy data))
+(defn execute [data behaviour]
+  (apply behaviour data))
 
 ;; Real-World Example: Sort by comparator
 
@@ -89,7 +89,7 @@
 
 ;; Object -> Function
 
-;; Example: java.collections.Iterator
+;; Example: java.util.Iterator
 
 ;; Iterator interface defines a set of functions...
 ;; hasNext(), next()
@@ -190,15 +190,32 @@
 
 ;; O'no state
 
-(defmulti print-string :state)
+(defmulti switch :state)
 
-(defmethod print-string :upper [s]
-  (println (.toUpperCase (:message s))))
+(defn flip [context]
+  (->> (:state context)
+       (get {:on :off :off :on})
+       (assoc context :state)))           
 
-(defmethod print-string :lower [s]
-  (println (.toLowerCase (:message s))))
+(defmethod switch :on [context]
+  (println (:obj context) "is ON")
+  (flip context))
+ 
+(defmethod switch :off [context]
+  (println (:obj context) "is OFF")
+  (flip context))
 
-;; Another implementation using passing style
+
+;; Another approach
+
+(def context (atom {:state :on :obj "TV"}))
+
+(defn switch []
+  (let [{:keys [state obj]} @context]
+    (println obj "is" state) 
+    (swap! context flip)))
+
+(repeatedly 10 switch)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 9. Template Method ;;
@@ -234,7 +251,8 @@
 ;; 1. Prototype ;;
 ;;;;;;;;;;;;;;;;;;
 
-;; Clone needed for state. In clojure we don't use state.
+;; Clone needed for preventing mutability.
+;; Clojure immutable.
 
 ;;;;;;;;;;;;;;;;;;
 ;;; 2 Singleton ;;
@@ -244,6 +262,8 @@
 ;;;;;;;;;;;;;;;;;;
 ;; 3. Composite ;;
 ;;;;;;;;;;;;;;;;;;
+
+;; Just a Tree structure
 
 ;;;;;;;;;;;;;;;;;;
 ;; 4. Builder ;;;;
