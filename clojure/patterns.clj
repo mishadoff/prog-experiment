@@ -70,14 +70,19 @@
 (defn execute [data behaviour]
   (apply behaviour data))
 
-;; Real-World Example: Sort by comparator
+(defn sorted? [coll comp]
+  (apply comp coll))
 
-(defn sort-by-comparator [coll comp]
-  (sort comp coll))
+(sorted? [1 2 3] <)
+(sorted? [5 2 2 1] >)
+(sorted? [5 2 2 1] >=)
 
-(sort-by-comparator [1 2 3 4 5] (comparator >))
+(defn sorted? [coll context]
+  (let [{:keys [fun mess]} context]
+    (print mess)
+    (apply fun coll)))
 
-;; TODO Battle
+(sorted? [1 2 3] {:fun < :mess "Less"})
 
 ;; Conclusion: Strategy is just function accepts function
 
@@ -268,6 +273,43 @@
 ;;;;;;;;;;;;;;;;;;
 ;; 4. Builder ;;;;
 ;;;;;;;;;;;;;;;;;;
+
+;; What is builder?
+;; It creates object.
+
+;; Why constructor is bad?
+;; Object(a, b)
+
+;; Optional parameters!
+;; Object(a, b, c)
+;; Object(a, b)
+;; Object(a, c)
+
+;; In case of 3 optional parameters we have 8 different constructors
+;; Telescope hell
+
+;; what about setters?
+;; It can cause inconsistent state for object
+
+;; Named parameters, lack in java
+;; new Object(name: a, city: b)
+
+;; In clojure
+
+;; (defn make-object [& {:keys [name city]}])
+;; 
+;; To call
+;; (make-object :name "Misha" :city "Kiev")
+
+;; StringBuilder in clojure?
+;; (def sb (atom []))
+;;
+;; (defn sb-append [s]
+;;   (swap! sb conj s))
+;;
+;; (defn build [sb]
+;;   (apply str @sb)) ;; creating a string
+
 
 ;;;;;;;;;;;;;;;;;;
 ;; 5. Factory ;;;;
