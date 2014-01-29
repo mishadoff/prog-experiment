@@ -38,20 +38,20 @@
 (defn execute-command [command]
   (command))
 
-;; JAVA:   What about history?
+;; What about parameters?
+
+;; can pass any number of parameters
+(defn execute-command [command & args]
+  (apply command args))
+
+;; What about history?
 
 ;; History it's a state.
 
 (def history (atom []))
 
-(defn execute-command-with-history [command]
-  (swap! history conj command) ;; modifying state
-  (command))
-
-;; CLOJURE:   What about parameters?
-
-;; can pass any number of parameters
-(defn execute-command-with-args [command & args]
+(defn execute-command [command & args]
+  (swap! history conj [command args]) ;; modifying state
   (apply command args))
 
 ;; or caller can use no-arg anonymous function (execute #(switch :on))
@@ -118,7 +118,12 @@
 (rest [1 2 3]) ;; => (2 3)
 
 ;; Conclusion: Iterator is abstraction and two functions.
-;; Overabstraction of single linked list?
+
+;; Custom datastructure?
+
+(deftype ReverseArray [vec]
+  clojure.lang.Seqable
+  (seq [self] (seq (reverse vec))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; 4. Interpreter ;;
@@ -195,62 +200,102 @@
 
 ;; O'no state
 
+(def mr-white   (atom {:name "Mr. White"   :state :enabled}))
+(def mr-pink    (atom {:name "Mr. Pink"    :state :staring}))
+(def mr-blonde  (atom {:name "Mr. Blonde"  :state :subscription}))
+
 (defmulti switch :state)
 
-(defn flip [context]
-  (->> (:state context)
-       (get {:on :off :off :on})
-       (assoc context :state)))           
+(defmethod switch :enabled [user]
+  (println (:name user) "is disabled.")
+  (assoc user :state :disabled))
 
-(defmethod switch :on [context]
-  (println (:obj context) "is ON")
-  (flip context))
- 
-(defmethod switch :off [context]
-  (println (:obj context) "is OFF")
-  (flip context))
+(defmethod switch :disabled [user]
+  (println (:name user) "is enabled.")
+  (assoc user :state :enabled))
 
+(defmethod switch :staring [user]
+  (println (:name user) "is staring. Disable.")
+  (assoc user :state :disabled))
 
-;; Another approach
+(defmethod switch :subscription [user]
+  (println (:name user) "has subscription.")
+  user)
 
-(def context (atom {:state :on :obj "TV"}))
-
-(defn switch []
-  (let [{:keys [state obj]} @context]
-    (println obj "is" state) 
-    (swap! context flip)))
-
-(repeatedly 10 switch)
+@mr-blonde
+(swap! mr-blonde switch)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 9. Template Method ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn abstract-algorithm [f]
-  (println "step 1")
-  (println "step 2")
-  (f)
-  (println "step 3"))
+;; Move character in RPG world
 
+;; (defn move-to [loc]
+;;   (cond
+;;    (chest? loc) (let [chest (:chest loc)]
+;;                   (if (open? chest) 
+;;                     (take-from chest)
+;;                     (do-nothing)))
+;;    (enemy? loc) (attack :melee (:enemy loc))
+;;    (quest? loc) (accept quest)
+;;    (artifact? loc) (let [art (:art loc)]
+;;                      (if (better :art (my))
+;;                        (replace :art)))))
+  
 ;; Does it differ from strategy? Answer: NO.
 
 ;;;;;;;;;;;;;;;;;;
 ;; 10. Visitor ;;;
 ;;;;;;;;;;;;;;;;;;
 
-;; TODO
+(derive ::fastfood ::food)
+
+(defmulti eat (fn [a b] [a b]))
+
+(defmethod eat [::coder ::food] [x y]
+  (println "Coder eats Food"))
+  
+(defmethod eat [::coder ::fastfood] [x y]
+  (println "Coder eats FastFood"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 11. Chain of responsibility ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO simple
+(def files ["hello.txt" "file.json"])
+
+(defn process-txt [file]
+  (println "Processing TXT: " file) true)
+  
+(defn process-json [file]
+  (println "Processing JSON: " file) true)
+
+(defn process-xml [file]
+  (println "Processing XML: " file) true)
+
+(defn process-edn [file]
+  (println "Processing EDN: " file) false)
+
+
+;; old-school way ;; SNIPPETS
+(defn chain [fns & args]
+  (loop [[f & fs] fns]
+    (when f
+      (apply f args)
+      (recur fs))))
+
+
+;; Cut-off
+(defn chain [[f & fs] & args]
+  (when f
+    (let [result (apply f args)]
+      (if result (recur fs args) nil))))
 
 
 
 
 ;; CREATIONAL
-
 
 ;;;;;;;;;;;;;;;;;;
 ;; 1. Prototype ;;
@@ -259,19 +304,42 @@
 ;; Clone needed for preventing mutability.
 ;; Clojure immutable.
 
+;; Assume you must create a set of objects sharing the same structure
+
+(def student-prototype
+  {:name "TODO"
+   :age 20
+   :university "KPI"
+   :faculty "AMD"})
+
+;; You can create new student by just modifing this one, old ones not gone
+
+(assoc student-prototype :name "Johnny Depp")
+
+;; Create a lot object from names
+(def names ["Brad" "Angelina" "Rudy"])
+(def students (mapv #(assoc student-prototype :name %) names))
+
 ;;;;;;;;;;;;;;;;;;
 ;;; 2 Singleton ;;
 ;;;;;;;;;;;;;;;;;;
 
+;; Singleton -> Evolution
+
+;; public final class Singleton...
+;; public enum Singleton { INSTANCE; }
+
+;; Believe or not it is just a fancy global variable
+(def singleton [:data])
+
+;; All concurrency problems came in if you want to make it lazy
+
+(defn make-runtime []
+  {:processors 4
+   :memory 4096})
 
 ;;;;;;;;;;;;;;;;;;
-;; 3. Composite ;;
-;;;;;;;;;;;;;;;;;;
-
-;; Just a Tree structure
-
-;;;;;;;;;;;;;;;;;;
-;; 4. Builder ;;;;
+;; 3. Builder ;;;;
 ;;;;;;;;;;;;;;;;;;
 
 ;; What is builder?
@@ -291,6 +359,8 @@
 ;; what about setters?
 ;; It can cause inconsistent state for object
 
+;; Incosisten state validation with {:pre}
+
 ;; Named parameters, lack in java
 ;; new Object(name: a, city: b)
 
@@ -301,16 +371,27 @@
 ;; To call
 ;; (make-object :name "Misha" :city "Kiev")
 
-;; StringBuilder in clojure?
-;; (def sb (atom []))
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; 4. Factory Method  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Creates an object
+
+;; Why constructors are bad?
+;; They don't have clear name
+
+;; Bloch arguments?
+
+;; Complex number can have multiple representations:
 ;;
-;; (defn sb-append [s]
-;;   (swap! sb conj s))
-;;
-;; (defn build [sb]
-;;   (apply str @sb)) ;; creating a string
+;; (defrecord Complex [re im])
+;; {:re 0 :im 0}
+;; [0 0]
+
+;; (->Complex 1 2)
 
 
-;;;;;;;;;;;;;;;;;;
-;; 5. Factory ;;;;
-;;;;;;;;;;;;;;;;;;
+;;; END
+
+;; NICCY is abbreviation of CYNIC
+;; VAINE is abbreviation of NAIVE
