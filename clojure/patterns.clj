@@ -16,20 +16,17 @@
 
 (def history (atom []))
 
-(defn execute-command [command & args]
+(defn execute [command & args]
   (swap! history conj [command args]) ;; modifying state
   (apply command args))
+
+;; (execute login "user" "password") 
 
 ;; Conclusion: Command is just a function
 
 ;;;;;;;;;;;;;;;;;
 ;; 2. Strategy ;;
 ;;;;;;;;;;;;;;;;;
-
-;; "Algorithm's behaviour can be selected at runtime" WAT?
-
-;; Example: Collections.sort(coll, comparator) in Java
-;                     Algorithm     behaviour
 
 (defn execute [data behaviour]
   (apply behaviour data))
@@ -47,6 +44,29 @@
     (apply fun coll)))
 
 (sorted? [1 2 3] {:fun < :mess "Less"})
+
+;; Example sort
+
+(def users [{:name "Lancelot" :subscription true}
+            {:name "Arthur"   :subscription false}
+             {:name "Percival" :subscription true}
+            {:name "Galahad"  :subscription true}])
+
+;; Stupid way
+(sort (comparator 
+       (fn [u1 u2]
+         (cond
+          (= (:subscription u1)
+             (:subscription u2)) (neg? (compare (:name u1)
+                                                (:name u2)))
+             (:subscription u1) true
+             :else false))) users)
+
+
+;; Oneliners
+(sort-by (juxt (complement :subscription) :name) users)
+(sort-by (juxt :subscription :name) #(compare %2 %1) users)
+
 
 ;; Conclusion: Strategy is just function accepts function
 
