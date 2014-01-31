@@ -1,60 +1,24 @@
 (ns patterns)
 
-;; Scratch for article/prez
-
-;; 1. Old School Design Patterns (GoF) in Clojure
-
-;; 2. Why Patterns?
-;; Our programing language is fucked up. 
-;; That's why we need design patterns
-
-;; 3. HARD DISCLAIMER
-;; - Most actions are simplified because of DYNAMIC PROGRAMMING
-;; - You may be not agree, it's ok.
-
-;; 4. Three Tankists and Dog
-;; Structural, Creational, Behavioural and Java
-
 ;;;;;;;;;;;;;;;;
 ;; 1. Command ;;
 ;;;;;;;;;;;;;;;;
 
-;; "Encapsulates information needed to call a method at a later time" WAT?
-
-;; Example: java.lang.Runnable
-
-;; Maybe functional interface?
-;; Maybe functional int...
-;; Maybe function...
-
-;; Real World Example: TODO 
-
-;; Java -> Interface Command.action()
-;; Clojure -> function
-
-;; Just Wrap In Anonymous noarg function if you need delayed computation
-;; By the way functional programmers call it thunk (delayed computation)
-
-(defn execute-command [command]
+(defn execute [command]
   (command))
 
 ;; What about parameters?
 
-;; can pass any number of parameters
-(defn execute-command [command & args]
+(defn execute [command & args]
   (apply command args))
 
 ;; What about history?
-
-;; History it's a state.
 
 (def history (atom []))
 
 (defn execute-command [command & args]
   (swap! history conj [command args]) ;; modifying state
   (apply command args))
-
-;; or caller can use no-arg anonymous function (execute #(switch :on))
 
 ;; Conclusion: Command is just a function
 
@@ -279,11 +243,10 @@
 
 
 ;; old-school way ;; SNIPPETS
-(defn chain [fns & args]
-  (loop [[f & fs] fns]
-    (when f
-      (apply f args)
-      (recur fs))))
+(defn chain [[f & fs] & args]
+  (when f
+    (apply f args)
+    (recur fs args)))
 
 
 ;; Cut-off
