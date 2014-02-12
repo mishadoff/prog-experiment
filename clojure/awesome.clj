@@ -18,6 +18,8 @@
            {:firstname "John" :lastname "White"}
            {:firstname "Walt" :lastname "White"}])
 
+;; TODO How we do this in Java
+
 ;; Wrong
 (sort (comparator
        (fn [p1 p2]
@@ -62,3 +64,11 @@
 (defn equal3? [o1 o2]
   (let [f (comp some-func-1 some-func-2)]
     (= (f o1) (f o2))))
+
+;; More work 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 3. Async Atom ;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Use Case: You continuosly read from atom, if its size is less than some value, send asynchronous request to fill the atom with data
