@@ -6,6 +6,7 @@
 ;; 1. Sort list of maps by multi values
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO swap first name with lastname
 ;; Use Case:
 ;; Sort list of people by firstname, and if
 ;; first names are equal, sort them by lastname
@@ -16,6 +17,8 @@
            {:firstname "John" :lastname "Doe"}
            {:firstname "John" :lastname "White"}
            {:firstname "Walt" :lastname "White"}])
+
+;; TODO How we do this in Java
 
 ;; Wrong
 (sort (comparator
@@ -34,6 +37,7 @@
 ;; 2. Compare results of two applied functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Test commit
 ;; TODO real use case
 
 ;; TODO functions specific to use case
@@ -60,3 +64,11 @@
 (defn equal3? [o1 o2]
   (let [f (comp some-func-1 some-func-2)]
     (= (f o1) (f o2))))
+
+;; More work 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 3. Async Atom ;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Use Case: You continuosly read from atom, if its size is less than some value, send asynchronous request to fill the atom with data

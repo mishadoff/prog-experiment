@@ -2,7 +2,7 @@
 
 (def step (fn[g r](reduce(fn[i j](update-in i j(fn[v](get[v 1](-(apply +(map #(get-in g% 0)(for[a[-1 0 1]b[-1 0 1]](map + j[a b]))))v 2)0))))g r)))
 
-;; 137 characters
+;; 137 characters 
 ;; Logic
 
 (defn step-sugar [grid range]
