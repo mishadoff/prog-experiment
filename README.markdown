@@ -7,6 +7,7 @@
 - [Awesome Functions](https://github.com/mishadoff/prog-experiment/blob/master/clojure/awesome.clj)
 - [Head and Tail experiment](https://github.com/mishadoff/prog-experiment/blob/master/clojure/ht.clj)
 - [Clojure Intro on JUG](https://github.com/mishadoff/prog-experiment/blob/master/clojure/jug.clj)
+- [Unsafe Usage](https://github.com/mishadoff/prog-experiment/blob/master/clojure/unsafe.clj)
 
 ### Java
 
