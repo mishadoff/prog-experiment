@@ -1,56 +1,37 @@
 (ns newyear)
 
-(defn tree [level ratio]
-  (let [mid (reduce + (take level (cons 3 (iterate inc 2))))
-        print-char-n (fn [c n] (dotimes [i n] (print c)))
-        print-fn-n (fn [f n] (dotimes [i n] (print (f))))
-        print-spaces (partial print-char-n " ")
-        decoration (fn [] (if (< (rand) ratio) "o" " "))]
-    ;; print star
-
-    (print-spaces mid)
-    (println "★")
-
-    (dotimes [current-level level]
-      (let [level-depth (nth (iterate inc 3) current-level)
-            block-shift (nth (reductions + (range)) current-level)
-            last-level? (= current-level (dec level))]
-        ;; print level
-        (dotimes [line level-depth]
-          (let [spaces-before (- mid line block-shift 1)
-                spaces-after (inc (* 2 line))
-                last? (= line (dec level-depth))]
-            (print-spaces spaces-before)
-            (print "/")
+(defn tree [l r]
+  (let [p print
+        n println
+        m(reduce +(take l(cons 3(iterate inc 2))))
+        pc(fn[c n](dotimes[i n](p c)))
+        pf(fn[f n](dotimes[i n](p(f))))
+        ps #(pc" "%)
+        d(fn[](if(<(rand)r)"o" " "))]
+    (ps m)(n"★")
+    (dotimes[cl l]
+      (let [ld(nth(iterate inc 3)cl)
+            bs(nth(reductions +(range))cl)
+            b?(= cl(dec l))]
+        (dotimes[h ld]
+          (let [sb(- m h bs 1)sa(inc(* 2 h))a?(= h(dec ld))]
+            (ps sb)(p"/")
             (cond
-              (and last-level? last?)
-              (print-char-n "_" (+ spaces-after (* 2 block-shift)))
+              (and a? b?)
+              (pc"_"(+ sa(* 2 bs)))
 
-              last?
-              (do
-                (print "_")
-                (print-fn-n decoration (+ (- spaces-after 2) (* 2 block-shift)))
-                (print "_"))
+              a?
+              (do (p"_")
+                  (pf d(+(- sa 2)(* 2 bs)))
+                  (p"_"))
 
               :else
-              (print-fn-n decoration (+ spaces-after (* 2 block-shift)))
-              
-              )
-            
-            (println "\\")))))
-    
-    ;; print stem
+              (pf d(+ sa(* 2 bs))))
+            (n "\\")))))
     (dotimes [i 2]
-      (print-spaces (- mid 1))
-      (print "|")
-      (if (= i (dec 2))
-        (print "_")
-        (print " "))
-      (println "|")
-      
-      )
-    
-    ))
+      (ps(- m 1))(p"|")
+      (if (= i 1)(p"_")(p" "))
+      (n"|"))))
 
 
 (tree 5 0.2)
@@ -60,3 +41,4 @@
 ;; Decorations added 1712
 
 ;; Fixed 1535
+;; First cut 859
