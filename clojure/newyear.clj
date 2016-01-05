@@ -1,44 +1,40 @@
 (ns newyear)
 
-(defn tree [l r]
-  (let [p print
-        n println
-        m(reduce +(take l(cons 3(iterate inc 2))))
-        pc(fn[c n](dotimes[i n](p c)))
-        pf(fn[f n](dotimes[i n](p(f))))
-        ps #(pc" "%)
-        d(fn[](if(<(rand)r)"o" " "))]
-    (ps m)(n"★")
-    (dotimes[cl l]
-      (let [ld(nth(iterate inc 3)cl)
-            bs(nth(reductions +(range))cl)
-            b?(= cl(dec l))]
-        (dotimes[h ld]
-          (let [sb(- m h bs 1)sa(inc(* 2 h))a?(= h(dec ld))]
-            (ps sb)(p"/")
+(def tree
+  (fn[l r]
+    (let[p print
+         n println
+         e range
+         m(reduce +(take l(cons 3(iterate inc 2))))
+         f(fn[w n](dotimes[i n](p(if(fn? w)(w)w))))
+         d #(f(fn[](if(<(rand)r)\o\ ))%)]
+      (f" "m)(n\★)
+      (doseq[b(e l)h(e(+ b 3)):let[u(quot(*(+ 1 b)b)2)v(+(* 2 h)1)a(=(+ b 2)h)t(+ v u u)]](f\ (- m h u 1))(p\/)
             (cond
-              (and a? b?)
-              (pc"_"(+ sa(* 2 bs)))
-
-              a?
-              (do (p"_")
-                  (pf d(+(- sa 2)(* 2 bs)))
-                  (p"_"))
-
-              :else
-              (pf d(+ sa(* 2 bs))))
-            (n "\\")))))
-    (dotimes [i 2]
-      (ps(- m 1))(p"|")
-      (if (= i 1)(p"_")(p" "))
-      (n"|"))))
+              (and(=(dec l)b)a)(f\_ t)
+              a(do(p\_)(d(- t 2))(p\_))
+              1(d t))
+            (n\\))
+      (f\ (- m 1))(n"| |")
+      (f\ (- m 1))(n"|_|"))))
 
 
-(tree 5 0.2)
+(tree 4 0.2)
 
+
+(defmacro dotimes-x [bindings & body]
+  )
 
 ;; First version without decorations 1655
 ;; Decorations added 1712
 
 ;; Fixed 1535
 ;; First cut 859
+;; 819
+;; 760
+;; 593
+;; 574
+;; 555
+;; 546
+;; 534
+;; 532 NO WS TRUNCATION
